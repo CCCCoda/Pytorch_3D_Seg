@@ -82,17 +82,22 @@ def test():
     dataloaders = DataLoader(dataset)
 
     dice = []
+    inf_time = []
     with torch.no_grad():
         for x, _ in dataloaders:
             inputs = x.type(torch.FloatTensor).to(device)
             labels = _.type(torch.FloatTensor).to(device)
             #x = torch.tensor(x, dtype=torch.float32)
             #_ = torch.tensor(_, dtype=torch.float32)
+            time1 = time.time()
             y = model(inputs)
+            time2 = time.time()
             dice.append(dice_coeff(y,labels).data.cpu().numpy())
+            inf_time.append(time2-time1)
         print('Dice :', dice)
         print('Ave : ',np.average(dice))
         print('Var : ',np.var(dice))
+        print('infrence time : ',np.average(inf_time))
 
 
 
