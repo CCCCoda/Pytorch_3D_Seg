@@ -23,8 +23,19 @@ class SpleenDataset(data.Dataset):
     
     def __getitem__(self,index):
         x_path,y_path = self.imgs[index]
-        img_x = trans.resize(nib.load((x_path)).get_fdata(),(96,512,512)) # resize images to same size
-        img_y = trans.resize(nib.load((y_path)).get_fdata(),(96,512,512))
+        img_x = nib.load((x_path)).get_fdata() # resize images to same size
+        img_y = nib.load((y_path)).get_fdata()
+        img_x = trans.resize(img_x,(512,512,96))
+        img_y = trans.resize(img_y,(512,512,96))
+        # sagittal
+        
+        # axial
+        #img_x = np.transpose(img_x,(2,0,1))
+        #img_y = np.transpose(img_y,(2,0,1))
+        
+        # coronal
+        #img_x = np.transpose(img_x,(1,0,2))
+        #img_y = np.transpose(img_y,(1,0,2))
 
         if self.transform is not None:
             img_x = self.transform(img_x)
@@ -40,7 +51,7 @@ class SpleenDataset(data.Dataset):
 class SpleenDatasetTest(data.Dataset):
 
     def __init__(self,transform = None,target_transform = None):
-        filename_list = os.listdir('dataset/spleen/imagesTr')  # data path
+        filename_list = os.listdir('dataset/spleen/imagesTs')  # data path
         n = len(filename_list)  # num of volumes
         
         imgs = []
@@ -56,8 +67,19 @@ class SpleenDatasetTest(data.Dataset):
     
     def __getitem__(self,index):
         x_path,y_path = self.imgs[index]
-        img_x = trans.resize(nib.load((x_path)).get_fdata(),(96,512,512)) # resize images to same size
-        img_y = trans.resize(nib.load((y_path)).get_fdata(),(96,512,512))
+        img_x = nib.load((x_path)).get_fdata() # resize images to same size
+        img_y = nib.load((y_path)).get_fdata()
+        img_x = trans.resize(img_x,(512,512,96))
+        img_y = trans.resize(img_y,(512,512,96))
+        # sagittal
+        
+        # axial
+        #img_x = np.transpose(img_x,(2,0,1))
+        #img_y = np.transpose(img_y,(2,0,1))
+        
+        # coronal
+        #img_x = np.transpose(img_x,(1,0,2))
+        #img_y = np.transpose(img_y,(1,0,2))
 
         if self.transform is not None:
             img_x = self.transform(img_x)
