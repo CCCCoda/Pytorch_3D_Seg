@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import time
 
 import torch
 from torchvision.transforms import transforms as T
@@ -63,10 +64,10 @@ def train():
     
     criterion = [DiceLoss(),torch.nn.BCELoss()]
         
-    optimizer = optim.Adam(model.parameters(), lr = args.lr, eps=1e-8) #optimizer = optim.SGD(model.parameters(), lr = args.lr, momentum=0.9)#
+    optimizer = optim.Adam(model.parameters(), lr = args.lr, eps=1e-8) 
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, cooldown=0, min_lr=1e-8)
     
-    dataset = SpleenDataset(transform=x_transform, target_transform=y_transform)#
+    dataset = SpleenDataset(transform=x_transform, target_transform=y_transform)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True,num_workers=4)
     train_model(model,criterion,optimizer,dataloader,args.num_epochs)
 
@@ -77,12 +78,10 @@ def test():
     model.load_state_dict(torch.load(args.weight))
     model.eval()
     
-    dataset = SpleenDataset(transform=x_transform, target_transform=y_transform)
+    dataset = SpleenDatasetTest(transform=x_transform, target_transform=y_transform)
     dataloaders = DataLoader(dataset)
-    #import matplotlib.pyplot as plt
-    #plt.ion()
-    dice = 0
-    num = 0
+
+    dice = []
     with torch.no_grad():
         for x, _ in dataloaders:
             inputs = x.type(torch.FloatTensor).to(device)
@@ -90,16 +89,10 @@ def test():
             #x = torch.tensor(x, dtype=torch.float32)
             #_ = torch.tensor(_, dtype=torch.float32)
             y = model(inputs)
-            dice += dice_coeff(y,labels)
-            num += 1
-            
-            print(dice)
-            #img_y=torch.squeeze(y).numpy()
-            #plt.imshow(img_y)
-            #plt.pause(0.01)
-        #plt.show()
-        dice /= num
+            dice.append(dice_coeff(y,labels).data.cpu().numpy())
         print('Dice :', dice)
+        print('Ave : ',np.average(dice))
+        print('Var : ',np.var(dice))
 
 
 
